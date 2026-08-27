@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
+import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/todo_provider.dart';
 
-import 'package:go_router/go_router.dart';
 
-class TodoListScreen extends StatelessWidget {
+class TodoListScreen extends ConsumerWidget {
   const TodoListScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final todos = context.watch<TodoProvider>().todos; //rebuilds on any change
+  Widget build(BuildContext context , WidgetRef ref) {
+    final todos = ref.watch(todoProvider); // was context.watch<TodoProvider>().todos
 
     return Scaffold(
       appBar: AppBar(title: Text("My Todos")),
@@ -30,13 +29,13 @@ class TodoListScreen extends StatelessWidget {
                     child: const Icon(Icons.delete),
                   ),
                   onDismissed: (_) => {
-                    context.read<TodoProvider>().deleteTodo(todo.id),
+                    ref.read(todoProvider.notifier).deleteTodo(todo.id),
                   },
                   child: ListTile(
                     leading: Checkbox(
                       value: todo.isDone,
                       onChanged: (_) => {
-                        context.read<TodoProvider>().toggleTodo(todo.id),
+                        ref.read(todoProvider.notifier).toggleTodo(todo.id),
                       },
                     ),
                     title: Text(

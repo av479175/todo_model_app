@@ -1,44 +1,43 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/todo.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+final todoProvider = NotifierProvider<TodoNotifier, List<Todo>>(TodoNotifier.new);
 
-class TodoProvider extends ChangeNotifier {
-  final List<Todo> _todos = [];
+class TodoNotifier extends Notifier<List<Todo>> {
+
   final _uuid = const Uuid();
 
-  List<Todo> get todos => List.unmodifiable(_todos); // don't expose the mutable list directly
+  @override
+  List<Todo> build() => []; // initial state — replaces the constructor
 
-
-  //list.unmodifiable prevents a screen form changing list just .add , it return a immutable list
 
   void addTodo(String title) {
-    _todos.add(Todo(id: _uuid.v4(), title: title));
-    notifyListeners();
+    state = [...state , Todo(id: _uuid.v4(), title: title)];
   }
 
   void toggleTodo(String id) {
-    final index = _todos.indexWhere((t) => t.id == id);
-    if (index == -1) return;
-    _todos[index] = _todos[index].copyWith(isDone: !_todos[index].isDone);
-    notifyListeners();
+    state = [
+      for (final todo in state)
+        if (todo.id == id) todo.copyWith(isDone: !todo.isDone) else todo,
+    ];
   }
 
   void editTodo(String id, String newTitle) {
-    final index = _todos.indexWhere((t) => t.id == id);
-    if (index == -1) return;
-    _todos[index] = _todos[index].copyWith(title: newTitle);
-    notifyListeners();
+    state = [
+      for (final todo in state)
+        if (todo.id == id) todo.copyWith(title: newTitle) else todo,
+    ];
   }
 
   void deleteTodo(String id) {
-    _todos.removeWhere((t) => t.id == id);
-    notifyListeners();
+    state = state.where((t) => t.id != id).toList();
   }
 
   Todo? getById(String id) {
     try {
-      return _todos.firstWhere((t) => t.id == id);
+      return state.firstWhere((t) => t.id == id);
     } catch (_) {
       return null;
     }
