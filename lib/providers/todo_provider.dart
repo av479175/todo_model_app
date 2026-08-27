@@ -7,9 +7,9 @@ class TodoProvider extends ChangeNotifier {
   final List<Todo> _todos = [];
   final _uuid = const Uuid();
 
-  List<Todo> get todo {
-    return List.unmodifiable(_todos);
-  }
+  List<Todo> get todos => List.unmodifiable(_todos); // don't expose the mutable list directly
+
+
   //list.unmodifiable prevents a screen form changing list just .add , it return a immutable list
 
   void addTodo(String title) {
